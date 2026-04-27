@@ -1,18 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   parsing.h                                          :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/04/20 15:21:17 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/23 03:56:11 by nmontard         ###   ########.fr       */
+/*   Created: 2026/04/22 15:01:38 by nmontard          #+#    #+#             */
+/*   Updated: 2026/04/22 15:15:05 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSING_H
-# define PARSING_H
-# include <config.h>
-int			verif_number(char *number);
-config_t	*get_config(int nb_parameters, char *parameters[], int *error);
-#endif
+#include <stdlib.h>
+
+void	*ft_calloc(size_t nmemb, size_t size)
+{
+	void	*result;
+	char	*ptr;
+	size_t	i;
+	size_t	total;
+
+	total = nmemb * size;
+	result = malloc(total);
+	if (!result)
+		return (NULL);
+	ptr = (char *)result;
+	i = 0;
+	while (i < total)
+	{
+		ptr[i] = 0;
+		i++;
+	}
+	return (result);
+}

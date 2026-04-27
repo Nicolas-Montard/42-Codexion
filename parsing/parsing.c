@@ -6,12 +6,12 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:03:32 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/20 16:08:58 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/23 06:53:59 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.h"
-#include "verif_number.h"
+#include "parsing.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -57,23 +57,21 @@ config_t	*get_config(int nb_parameters, char *parameters[], int *error)
 	char		*parameter;
 	config_t	*config;
 
-	config = malloc(sizeof(config_t));
-	if (config == NULL)
-		return (NULL);
 	if (nb_parameters != 8)
 	{
 		*error = 1;
 		return (NULL);
 	}
+	if (!verif_parameters(nb_parameters, parameters))
+	{
+		*error = 3;
+		return (NULL);
+	}
+	config = malloc(sizeof(config_t));
 	if (config == NULL)
 	{
 		*error = 2;
 		return (NULL);
-	}
-	if (!verif_parameters(nb_parameters, parameters))
-	{
-		*error = 3;
-		return (config);
 	}
 	assign_parameters(parameters, config);
 	return (config);
