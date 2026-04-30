@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:29:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/27 16:35:20 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 02:12:31 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ error value indicate the type of error:
 int	error_manager(int error, thread_info_t **thread_info, pthread_t *threads,
 		config_t *config)
 {
+	free_main(thread_info, threads, config);
 	fprintf(stderr, "Error: ");
 	if (error == 1)
 		fprintf(stderr, "There isn´t the right number of parameters\n");
@@ -42,11 +43,5 @@ int	error_manager(int error, thread_info_t **thread_info, pthread_t *threads,
 		fprintf(stderr, "A thread hasn't been able to create itself");
 	if (error == 6)
 		fprintf(stderr, "A mutex hasn't been able to create itself");
-	if (thread_info != NULL)
-		free_thread_struct(thread_info);
-	if (threads != NULL)
-		free_threads(threads);
-	if (config != NULL)
-		free(config);
 	return (1);
 }

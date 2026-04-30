@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 01:38:56 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/27 17:29:12 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 03:14:33 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@
 #include <pthread.h>
 #include <stdio.h>
 
-void	*test(void *thread_info_t)
+void	*test(void *thread_info)
 {
-	printf("test\n");
+	printf("test thread: %d\n", ((thread_info_t *)thread_info)->id);
 	return (NULL);
 }
 
@@ -41,9 +41,7 @@ pthread_t	*create_threads(config_t *config, int *error,
 		if (pthread_create(&(threads[i]), NULL, test, threads_info[i]) != 0)
 		{
 			*error = 5;
-			// need more thinking on free, cannot join actually
-			free(threads);
-			return (NULL);
+			return (threads);
 		}
 		i++;
 	}

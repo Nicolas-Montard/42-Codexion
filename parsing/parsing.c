@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:03:32 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/23 06:53:59 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 02:13:14 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,6 @@ static void	assign_parameters(char **parameters, config_t *config)
 
 config_t	*get_config(int nb_parameters, char *parameters[], int *error)
 {
-	int			i;
-	char		*parameter;
 	config_t	*config;
 
 	if (nb_parameters != 8)

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:20:55 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/27 13:55:55 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 03:08:29 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,8 @@ int	main(int argc, char *argv[])
 	if (thread_info == NULL)
 		return (error_manager(error, thread_info, threads, config));
 	threads = create_threads(config, &error, thread_info);
-	if (threads == NULL)
+	if (error != 0)
 		return (error_manager(error, thread_info, threads, config));
-	while (threads[i] != 0)
-	{
-		pthread_join(threads[i], NULL);
-		i++;
-	}
 	free_main(thread_info, threads, config);
 	return (0);
 }

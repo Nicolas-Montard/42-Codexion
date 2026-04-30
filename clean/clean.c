@@ -1,6 +1,7 @@
 #include "coder_state.h"
 #include "thread_info.h"
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 void	free_dongles(pthread_mutex_t *dongles, int size)
@@ -58,6 +59,17 @@ void	free_thread_struct(thread_info_t **threads)
 void	free_main(thread_info_t **thread_info, pthread_t *threads,
 		config_t *config)
 {
+	int i;
+
+	i = 0;
+	if (threads != NULL)
+	{
+		while (threads[i] != 0)
+		{
+			pthread_join(threads[i], NULL);
+			i++;
+		}
+	}
 	if (thread_info != NULL)
 		free_thread_struct(thread_info);
 	if (threads != NULL)

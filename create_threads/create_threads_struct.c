@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/27 17:08:48 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 03:12:24 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "thread_info.h"
 #include "utils.h"
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
@@ -70,7 +71,7 @@ static pthread_mutex_t	*create_dongles(config_t *config, int *error)
 	pthread_mutex_t	*dongles;
 
 	i = 0;
-	dongles = ft_calloc(config->nb_coder + 1, sizeof(pthread_mutex_t *));
+	dongles = ft_calloc(config->nb_coder + 1, sizeof(pthread_mutex_t));
 	if (dongles == NULL)
 	{
 		*error = 2;
@@ -90,7 +91,7 @@ static pthread_mutex_t	*create_dongles(config_t *config, int *error)
 }
 
 static thread_info_t	*create_thread(config_t *config,
-		coder_state_t **coders_state, int *dongles, int *error)
+		coder_state_t **coders_state, pthread_mutex_t *dongles, int *error)
 {
 	thread_info_t	*thread;
 
@@ -111,7 +112,7 @@ thread_info_t	**create_threads_struct(config_t *config, int *error)
 	thread_info_t	**threads;
 	int				i;
 	coder_state_t	**coders_state;
-	int				*dongles;
+	pthread_mutex_t	*dongles;
 
 	i = 0;
 	threads = ft_calloc(config->nb_coder + 1, sizeof(thread_info_t *));
