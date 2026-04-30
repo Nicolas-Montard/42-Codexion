@@ -6,12 +6,12 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/04/30 02:56:32 by nmontard         ###   ########.fr        #
+#    Updated: 2026/04/30 05:09:47 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC      = cc
-CFLAGS  = -Wall -Wextra -Werror -MMD -MP -I headers -ggdb
+CFLAGS  = -Wall -Wextra -Werror -pthread -MMD -MP -I headers -ggdb
 
 DIR_TO_CREATE = obj_and_dep_dir
 

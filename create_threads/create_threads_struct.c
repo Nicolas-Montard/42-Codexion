@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 03:12:24 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 05:42:03 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ static coder_state_t	**create_coders(config_t *config, int *error)
 	i = 0;
 	while (i < config->nb_coder)
 	{
-		coders_state[i] = create_coder_state(i + 1, error);
+		coders_state[i] = create_coder_state(i, error);
 		if (coders_state[i] == NULL)
 		{
 			free_coders_state(coders_state);
@@ -82,7 +82,7 @@ static pthread_mutex_t	*create_dongles(config_t *config, int *error)
 		if (pthread_mutex_init(&(dongles[i]), NULL) != 0)
 		{
 			*error = 6;
-			free_dongles(dongles, i);
+			free_dongles(&dongles, i);
 			return (NULL);
 		}
 		i++;
@@ -107,12 +107,25 @@ static thread_info_t	*create_thread(config_t *config,
 	return (thread);
 }
 
+static pthread_mutex_t	create_print_lock(int *error)
+{
+	pthread_mutex_t	print_lock;
+
+	if (pthread_mutex_init(&(print_lock), NULL) != 0)
+	{
+		*error = 6;
+		return (print_lock);
+	}
+	return (print_lock);
+}
+
 thread_info_t	**create_threads_struct(config_t *config, int *error)
 {
 	thread_info_t	**threads;
 	int				i;
 	coder_state_t	**coders_state;
 	pthread_mutex_t	*dongles;
+	pthread_mutex_t	print_lock;
 
 	i = 0;
 	threads = ft_calloc(config->nb_coder + 1, sizeof(thread_info_t *));
@@ -121,16 +134,24 @@ thread_info_t	**create_threads_struct(config_t *config, int *error)
 		*error = 2;
 		return (NULL);
 	}
+	print_lock = create_print_lock(error);
+	if (*error != 0)
+	{
+		free(threads);
+		return (NULL);
+	}
 	dongles = create_dongles(config, error);
 	if (dongles == NULL)
 	{
+		pthread_mutex_destroy(&print_lock);
 		free(threads);
 		return (NULL);
 	}
 	coders_state = create_coders(config, error);
 	if (coders_state == NULL)
 	{
-		free(dongles);
+		pthread_mutex_destroy(&print_lock);
+		free_dongles(dongles, config->nb_coder);
 		free(threads);
 		return (NULL);
 	}
@@ -139,10 +160,19 @@ thread_info_t	**create_threads_struct(config_t *config, int *error)
 		threads[i] = create_thread(config, coders_state, dongles, error);
 		if (threads[i] == NULL)
 		{
-			free_thread_struct(threads);
+			pthread_mutex_destroy(&print_lock);
+			free_coders_state(coders_state);
+			free_dongles(dongles, config->nb_coder);
+			i = 0;
+			while (threads[i] != NULL)
+			{
+				free(threads[i]);
+				i++;
+			}
+			free(threads);
 			return (NULL);
 		}
-		threads[i]->id = i + 1;
+		threads[i]->id = i;
 		i++;
 	}
 	return (threads);

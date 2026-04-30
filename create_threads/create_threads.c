@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 01:38:56 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 03:14:33 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/04/30 06:03:42 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,3 +47,5 @@ pthread_t	*create_threads(config_t *config, int *error,
 	}
 	return (threads);
 }
+
+// TODO add start time to threads
