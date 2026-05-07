@@ -6,14 +6,14 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/05/07 05:26:29 by nmontard         ###   ########.fr        #
+#    Updated: 2026/05/07 05:29:12 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC      = cc
 CFLAGS  = -Wall -Wextra -Werror -pthread -MMD -MP -I headers -ggdb
 
-DIR_TO_CREATE = obj_and_dep_dir
+DIR_TO_CREATE = .obj_dep
 
 CFILES  = create_threads/create_threads.c create_threads/create_threads_struct.c \
           parsing/error_manager.c parsing/parsing.c parsing/verif_number.c \
