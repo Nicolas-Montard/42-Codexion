@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/07 05:16:30 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/07 05:46:41 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,6 +173,7 @@ thread_info_t	**create_threads_struct(config_t *config, int *error)
 			free(threads);
 			return (NULL);
 		}
+		threads[i]->simulation_ended = 0;
 		threads[i]->id = i;
 		i++;
 	}
