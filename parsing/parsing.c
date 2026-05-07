@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:03:32 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 02:13:14 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/07 05:18:03 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "parsing.h"
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 static int	verif_parameters(int nb_parameters, char *parameters[])
 {
@@ -49,6 +50,7 @@ static void	assign_parameters(char **parameters, config_t *config)
 	config->nb_compile_req = atoi(parameters[5]);
 	config->dongle_cooldown = atoi(parameters[6]);
 	config->scheduler = parameters[7];
+	gettimeofday(&config->started_at, NULL);
 }
 
 config_t	*get_config(int nb_parameters, char *parameters[], int *error)

@@ -6,7 +6,7 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/04/30 05:09:47 by nmontard         ###   ########.fr        #
+#    Updated: 2026/05/07 05:26:29 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,8 @@ DIR_TO_CREATE = obj_and_dep_dir
 
 CFILES  = create_threads/create_threads.c create_threads/create_threads_struct.c \
           parsing/error_manager.c parsing/parsing.c parsing/verif_number.c \
-          utils/utils.c main.c clean/clean.c
+          utils/utils.c main.c clean/clean.c thread_function/thread_function.c \
+		  thread_function/utils.c
 
 OBJECTS = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.o))
 DEPS    = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.d))

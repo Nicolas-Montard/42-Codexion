@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 14:29:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 06:02:08 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/06 16:19:04 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ typedef struct thread_info
 	pthread_mutex_t	*dongles;
 	pthread_mutex_t	print_lock;
 	int				id;
-	struct timeval	program_start;
 }					thread_info_t;
 
 #endif

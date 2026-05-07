@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 05:42:03 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/07 05:16:30 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,14 @@ static coder_state_t	*create_coder_state(int id, int *error)
 		*error = 2;
 		return (NULL);
 	}
-	coder_state->id = id;
-	if (gettimeofday(&(coder_state->last_compile_start), NULL) == -1)
+	if (pthread_mutex_init(&(coder_state->lock_compile_start), NULL) != 0)
 	{
-		*error = 4;
+		*error = 6;
 		free(coder_state);
 		return (NULL);
 	}
+	coder_state->id = id;
+	gettimeofday(&(coder_state->last_compile_start), NULL);
 	return (coder_state);
 }
 
@@ -82,7 +83,7 @@ static pthread_mutex_t	*create_dongles(config_t *config, int *error)
 		if (pthread_mutex_init(&(dongles[i]), NULL) != 0)
 		{
 			*error = 6;
-			free_dongles(&dongles, i);
+			free_dongles(dongles, i);
 			return (NULL);
 		}
 		i++;

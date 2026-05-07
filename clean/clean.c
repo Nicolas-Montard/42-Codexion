@@ -4,20 +4,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void	free_dongles(pthread_mutex_t **dongles, int size)
+void	free_dongles(pthread_mutex_t *dongles, int size)
 {
 	int	i;
 
 	i = 0;
-	if (*dongles != NULL)
+	if (dongles != NULL)
 	{
 		while (i < size)
 		{
-			pthread_mutex_destroy(&((*dongles)[i]));
+			pthread_mutex_destroy(&((dongles)[i]));
 			i++;
 		}
-		free(*dongles);
-		*dongles = NULL;
+		free(dongles);
+		dongles = NULL;
 	}
 }
 
