@@ -6,13 +6,14 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 02:55:02 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/14 05:11:03 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "clean.h"
 #include "coder_state.h"
 #include "config.h"
+#include "dongle.h"
 #include "thread_info.h"
 #include "utils.h"
 #include <pthread.h>
@@ -52,24 +53,43 @@ static coder_state_t	*create_coders(int nb_coder, int *error)
 	}
 	return (coders);
 }
-
-static pthread_mutex_t	*create_dongles(int nb_coder, int *error)
+// TODO EVERYWHERE remove multiple instruction by line
+static dongle_t	*create_dongles(int nb_coder, int *error)
 {
-	pthread_mutex_t	*dongles;
-	int				i;
+	dongle_t	*dongles;
+	int			i;
 
-	dongles = ft_calloc(nb_coder, sizeof(pthread_mutex_t));
+	dongles = ft_calloc(nb_coder, sizeof(dongle_t));
 	if (dongles == NULL)
 		return (*error = 2, NULL);
 	i = 0;
 	while (i < nb_coder)
 	{
-		if (pthread_mutex_init(&dongles[i], NULL) != 0)
+		if (pthread_mutex_init(&dongles[i].lock, NULL) != 0)
 		{
 			*error = 6;
-			free_dongles(dongles, i);
+			while (--i >= 0)
+			{
+				pthread_mutex_destroy(&dongles[i].lock);
+				pthread_cond_destroy(&dongles[i].cond);
+			}
+			free(dongles);
 			return (NULL);
 		}
+		if (pthread_cond_init(&dongles[i].cond, NULL) != 0)
+		{
+			pthread_mutex_destroy(&dongles[i].lock);
+			*error = 6;
+			while (--i >= 0)
+			{
+				pthread_mutex_destroy(&dongles[i].lock);
+				pthread_cond_destroy(&dongles[i].cond);
+			}
+			free(dongles);
+			return (NULL);
+		}
+		dongles[i].available = 1;
+		dongles[i].queue_size = 0;
 		i++;
 	}
 	return (dongles);

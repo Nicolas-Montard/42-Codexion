@@ -2,6 +2,7 @@
 # define SHARED_INFO_H
 # include "coder_state.h"
 # include "config.h"
+# include "dongle.h"
 # include <pthread.h>
 
 typedef struct shared_info
@@ -9,7 +10,7 @@ typedef struct shared_info
 	pthread_mutex_t	print_lock;
 	pthread_mutex_t	simulation_lock;
 	int				simulation_ended;
-	pthread_mutex_t	*dongles;
+	dongle_t		*dongles;
 	config_t		*config;
 	coder_state_t	*coders_states;
 }					shared_info_t;
