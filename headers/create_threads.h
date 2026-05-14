@@ -3,8 +3,8 @@
 # include "pthread.h"
 # include "thread_info.h"
 
-thread_info_t	**create_threads_struct(config_t *config, int *error);
-pthread_t		*create_threads(config_t *config, int *error,
-					thread_info_t **thread_info);
+thread_info_t	*create_threads_struct(config_t *config,
+					shared_info_t *shared_info, int *error);
+pthread_t		*create_threads(int *error, thread_info_t *threads_info);
 
 #endif
