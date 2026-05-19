@@ -11,7 +11,7 @@ long	timeval_to_ms(struct timeval tv)
 }
 
 // get left if even, right if odd
-pthread_mutex_t	*get_first_dongle(thread_info_t *thread_info)
+dongle_t	*get_first_dongle(thread_info_t *thread_info)
 {
 	if (thread_info->id % 2 == 0)
 		return (&thread_info->shared_info->dongles[thread_info->id]);
@@ -22,7 +22,7 @@ pthread_mutex_t	*get_first_dongle(thread_info_t *thread_info)
 }
 
 // get right if even, left if odd
-pthread_mutex_t	*get_second_dongle(thread_info_t *thread_info)
+dongle_t	*get_second_dongle(thread_info_t *thread_info)
 {
 	if (thread_info->id % 2 == 0)
 	{
@@ -49,6 +49,13 @@ long	get_time_since_start(thread_info_t *thread_info)
 
 void	thread_print(char *str, thread_info_t *thread_info)
 {
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	if (thread_info->shared_info->simulation_ended == 1)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		return ;
+	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	pthread_mutex_lock(&thread_info->shared_info->print_lock);
 	printf("%ld %d %s\n", get_time_since_start(thread_info), thread_info->id
 		+ 1, str);

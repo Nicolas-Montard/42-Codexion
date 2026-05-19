@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 05:11:03 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/19 16:10:27 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ static coder_state_t	*create_coders(int nb_coder, int *error)
 	}
 	return (coders);
 }
-// TODO EVERYWHERE remove multiple instruction by line
+
 static dongle_t	*create_dongles(int nb_coder, int *error)
 {
 	dongle_t	*dongles;
@@ -61,7 +61,10 @@ static dongle_t	*create_dongles(int nb_coder, int *error)
 
 	dongles = ft_calloc(nb_coder, sizeof(dongle_t));
 	if (dongles == NULL)
-		return (*error = 2, NULL);
+	{
+		*error = 2;
+		return (NULL);
+	}
 	i = 0;
 	while (i < nb_coder)
 	{

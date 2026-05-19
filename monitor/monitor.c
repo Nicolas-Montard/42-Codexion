@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 03:20:01 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/19 16:52:22 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,18 @@ static int	check_all_ended(thread_info_t *thread_info, int nb_coder)
 	return (1);
 }
 
+static void	broadcast_all(thread_info_t *thread_info)
+{
+	int	i;
+
+	i = 0;
+	while (i < thread_info->shared_info->config->nb_coder)
+	{
+		pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
+		i++;
+	}
+}
+
 static void	*monitor(void *thread_info_void)
 {
 	thread_info_t	*thread_info;
@@ -70,6 +82,7 @@ static void	*monitor(void *thread_info_void)
 		if (check_all_ended(thread_info, nb_coder))
 		{
 			thread_info->shared_info->simulation_ended = 1;
+			broadcast_all(thread_info);
 			break ;
 		}
 		usleep(1000);

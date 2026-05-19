@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void	free_dongles(pthread_mutex_t *dongles, int size)
+void	free_dongles(dongle_t *dongles, int size)
 {
 	int	i;
 
@@ -13,7 +13,8 @@ void	free_dongles(pthread_mutex_t *dongles, int size)
 	{
 		while (i < size)
 		{
-			pthread_mutex_destroy(&dongles[i]);
+			pthread_cond_destroy(&dongles[i].cond);
+			pthread_mutex_destroy(&dongles[i].lock);
 			i++;
 		}
 		free(dongles);
@@ -57,12 +58,16 @@ void	free_main(thread_info_t *thread_info, pthread_t *threads,
 	if (config != NULL)
 		nb_coder = config->nb_coder;
 	if (monitor_created == 1)
+	{
+		thread_info->shared_info->simulation_ended = 1;
 		pthread_join(monitor, NULL);
+	}
 	i = 0;
 	if (threads != NULL)
 	{
 		while (i < nb_coder)
 		{
+			thread_info->shared_info->simulation_ended = 1;
 			pthread_join(threads[i], NULL);
 			i++;
 		}
