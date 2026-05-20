@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/19 16:10:27 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/20 15:58:29 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 #include "thread_info.h"
 #include "utils.h"
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/time.h>
 
@@ -93,6 +94,8 @@ static dongle_t	*create_dongles(int nb_coder, int *error)
 		}
 		dongles[i].available = 1;
 		dongles[i].queue_size = 0;
+		dongles[i].id = i;
+		dongles[i].has_been_released = 0;
 		i++;
 	}
 	return (dongles);

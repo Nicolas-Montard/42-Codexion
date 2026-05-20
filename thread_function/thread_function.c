@@ -1,5 +1,6 @@
 #include "thread_function.h"
 #include "thread_info.h"
+#include <stdio.h>
 #include <unistd.h>
 
 static void	compile(thread_info_t *thread_info)
@@ -20,6 +21,8 @@ static void	compile(thread_info_t *thread_info)
 		return ;
 	}
 	thread_print("has taken a dongle", thread_info);
+	if (first_dongle == second_dongle)
+		usleep((thread_info->shared_info->config->time_to_burnout + 20) * 1000);
 	take_dongle(thread_info, second_dongle);
 	if (thread_info->shared_info->simulation_ended == 1)
 	{
@@ -38,22 +41,14 @@ static void	compile(thread_info_t *thread_info)
 
 static void	debug(thread_info_t *thread_info)
 {
-	if (thread_info->shared_info->simulation_ended == 1)
-		return ;
-	usleep(thread_info->shared_info->config->time_to_debug * 1000);
-	if (thread_info->shared_info->simulation_ended == 1)
-		return ;
 	thread_print("is debugging", thread_info);
+	usleep(thread_info->shared_info->config->time_to_debug * 1000);
 }
 
 static void	refactoring(thread_info_t *thread_info)
 {
-	if (thread_info->shared_info->simulation_ended == 1)
-		return ;
-	usleep(thread_info->shared_info->config->time_to_refactor * 1000);
-	if (thread_info->shared_info->simulation_ended == 1)
-		return ;
 	thread_print("is refactoring", thread_info);
+	usleep(thread_info->shared_info->config->time_to_refactor * 1000);
 }
 
 void	*thread_function(void *thread_info_void)
@@ -63,6 +58,7 @@ void	*thread_function(void *thread_info_void)
 
 	thread_info = (thread_info_t *)thread_info_void;
 	coder = get_coder(thread_info);
+	gettimeofday(&coder->last_compile_start, NULL);
 	while (thread_info->shared_info->simulation_ended != 1)
 	{
 		if (coder->nb_compile < thread_info->shared_info->config->nb_compile_req)

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:20:55 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 03:25:06 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/20 14:02:48 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "error_manager.h"
 #include "monitor.h"
 #include "parsing.h"
+#include "utils.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -44,6 +45,8 @@ int	main(int argc, char *argv[])
 	if (error != 0)
 		return (error_manager(error, threads_info, threads, config, monitor,
 				0));
-	free_main(threads_info, threads, &shared, config, monitor, 1);
+	join_threads(threads, config->nb_coder);
+	pthread_join(monitor, NULL);
+	free_main(threads_info, threads, &shared, config);
 	return (0);
 }

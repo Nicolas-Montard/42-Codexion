@@ -6,10 +6,11 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 15:01:38 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/30 03:08:57 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/20 14:02:16 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -32,4 +33,18 @@ void	*ft_calloc(size_t nmemb, size_t size)
 		i++;
 	}
 	return (result);
+}
+
+void	join_threads(pthread_t *threads, int nb_threads)
+{
+	int	i;
+
+	i = 0;
+	if (threads == NULL)
+		return ;
+	while (i < nb_threads)
+	{
+		pthread_join(threads[i], NULL);
+		i++;
+	}
 }

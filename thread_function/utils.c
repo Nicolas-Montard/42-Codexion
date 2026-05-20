@@ -55,17 +55,17 @@ void	thread_print(char *str, thread_info_t *thread_info)
 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		return ;
 	}
-	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	pthread_mutex_lock(&thread_info->shared_info->print_lock);
 	printf("%ld %d %s\n", get_time_since_start(thread_info), thread_info->id
 		+ 1, str);
 	pthread_mutex_unlock(&thread_info->shared_info->print_lock);
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 }
 
 void	change_compile_start(thread_info_t *thread_info)
 {
-	struct timeval now;
-	coder_state_t *coder;
+	struct timeval	now;
+	coder_state_t	*coder;
 
 	coder = get_coder(thread_info);
 	gettimeofday(&now, NULL);

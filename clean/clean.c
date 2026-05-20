@@ -48,8 +48,7 @@ void	free_shared_info(shared_info_t *shared, int nb_coder)
 }
 
 void	free_main(thread_info_t *thread_info, pthread_t *threads,
-		shared_info_t *shared, config_t *config, pthread_t monitor,
-		int monitor_created)
+		shared_info_t *shared, config_t *config)
 {
 	int	i;
 	int	nb_coder;
@@ -57,22 +56,9 @@ void	free_main(thread_info_t *thread_info, pthread_t *threads,
 	nb_coder = 0;
 	if (config != NULL)
 		nb_coder = config->nb_coder;
-	if (monitor_created == 1)
-	{
-		thread_info->shared_info->simulation_ended = 1;
-		pthread_join(monitor, NULL);
-	}
 	i = 0;
 	if (threads != NULL)
-	{
-		while (i < nb_coder)
-		{
-			thread_info->shared_info->simulation_ended = 1;
-			pthread_join(threads[i], NULL);
-			i++;
-		}
 		free(threads);
-	}
 	if (thread_info != NULL)
 		free(thread_info);
 	if (shared != NULL)

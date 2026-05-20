@@ -6,13 +6,14 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:29:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 03:08:57 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/20 13:40:27 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "clean.h"
 #include "pthread.h"
 #include "thread_info.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -29,8 +30,12 @@ error value indicate the type of error:
 int	error_manager(int error, thread_info_t *thread_info, pthread_t *threads,
 		config_t *config, pthread_t monitor, int monitor_created)
 {
-	free_main(thread_info, threads, thread_info[0].shared_info, config, monitor,
-		monitor_created);
+	if (thread_info != NULL)
+		thread_info->shared_info->simulation_ended = 1;
+	join_threads(threads, config->nb_coder);
+	if (monitor_created == 1)
+		pthread_join(monitor, NULL);
+	free_main(thread_info, threads, thread_info[0].shared_info, config);
 	fprintf(stderr, "Error: ");
 	if (error == 1)
 		fprintf(stderr, "There isn´t the right number of parameters\n");
