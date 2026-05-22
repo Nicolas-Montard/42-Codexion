@@ -91,7 +91,7 @@ void	take_dongles(thread_info_t *thread_info, dongle_t *dongles[2])
 	}
 	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	dongles[0]->available = 0;
-	dongles[1]->available = 1;
+	dongles[1]->available = 0;
 	pthread_mutex_unlock(&(dongles[0]->lock));
 	pthread_mutex_unlock(&(dongles[1]->lock));
 	pop_queue(dongles[0]);
