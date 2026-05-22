@@ -76,3 +76,25 @@ void	change_compile_start(thread_info_t *thread_info)
 	coder->last_compile_start = now;
 	pthread_mutex_unlock(&coder->lock_compile_start);
 }
+
+struct timespec	make_timespec(int timeout_ms)
+{
+	struct timeval tv;
+	struct timespec time_spec;
+
+	gettimeofday(&tv, NULL);
+
+	tv.tv_sec += timeout_ms / 1000;
+	tv.tv_usec += (timeout_ms % 1000) * 1000;
+
+	if (tv.tv_usec >= 1000000)
+	{
+		tv.tv_sec += 1;
+		tv.tv_usec -= 1000000;
+	}
+
+	time_spec.tv_sec = tv.tv_sec;
+	time_spec.tv_nsec = tv.tv_usec * 1000;
+
+	return (time_spec);
+}

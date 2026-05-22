@@ -12,4 +12,5 @@ long			timeval_to_ms(struct timeval tv);
 long			get_time_since_start(struct timeval tv);
 void			take_dongle(thread_info_t *thread_info, dongle_t *dongle);
 void			release_dongle(dongle_t *dongle);
+struct timespec	make_timespec(int timeout_ms);
 #endif

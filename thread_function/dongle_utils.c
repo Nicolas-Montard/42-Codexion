@@ -58,6 +58,7 @@ void	release_dongle(dongle_t *dongle)
 void	take_dongle(thread_info_t *thread_info, dongle_t *dongle)
 {
 	coder_state_t	*coder;
+	struct timespec	end_timer;
 
 	coder = get_coder(thread_info);
 	add_to_queue(coder, dongle, thread_info->shared_info->config->scheduler);
@@ -66,8 +67,10 @@ void	take_dongle(thread_info_t *thread_info, dongle_t *dongle)
 	while ((dongle->queue[0] != coder || dongle->available == 0)
 		&& thread_info->shared_info->simulation_ended == 0)
 	{
+		end_timer = make_timespec(thread_info->shared_info->config->time_to_burnout
+				+ 10);
 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		pthread_cond_wait(&dongle->cond, &dongle->lock);
+		pthread_cond_timedwait(&dongle->cond, &dongle->lock, &end_timer);
 		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	}
 	if (thread_info->shared_info->simulation_ended == 1)

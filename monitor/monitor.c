@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/22 15:09:09 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/22 16:14:01 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,7 +109,6 @@ static void	*monitor(void *thread_info_void)
 {
 	thread_info_t	*thread_info;
 	int				nb_coder;
-	int				i;
 
 	thread_info = (thread_info_t *)thread_info_void;
 	nb_coder = thread_info->shared_info->config->nb_coder;
@@ -124,12 +123,6 @@ static void	*monitor(void *thread_info_void)
 			broadcast_all(thread_info);
 			break ;
 		}
-	}
-	i = 0;
-	while (i < thread_info->shared_info->config->nb_coder)
-	{
-		pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
-		i++;
 	}
 	return (NULL);
 }
