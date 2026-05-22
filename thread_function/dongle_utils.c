@@ -48,7 +48,6 @@ void	release_dongle(dongle_t *dongle)
 	pthread_mutex_lock(&dongle->lock);
 	gettimeofday(&dongle->last_release, NULL);
 	dongle->has_been_released = 1;
-	pthread_cond_broadcast(&dongle->cond);
 	pthread_mutex_unlock(&dongle->lock);
 }
 

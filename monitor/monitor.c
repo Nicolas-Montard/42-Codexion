@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/20 17:18:42 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/22 13:17:40 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ static int	check_burnout(thread_info_t *thread_info, int nb_coder)
 			thread_info->shared_info->simulation_ended = 1;
 			pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 			pthread_mutex_lock(&thread_info->shared_info->print_lock);
-			printf("%ld %d %s\n", get_time_since_start(thread_info),
+			printf("%ld %d %s\n",
+				get_time_since_start(thread_info->shared_info->config->started_at),
 				thread_info[i].id + 1, "burned out");
 			pthread_mutex_unlock(&thread_info->shared_info->print_lock);
 			return (1);
@@ -51,20 +52,26 @@ static int	check_burnout(thread_info_t *thread_info, int nb_coder)
 
 static void	check_dongle_cooldown(thread_info_t *thread_info)
 {
-	int			i;
-	int			nb_dongles;
-	dongle_t	*dongles;
+	int				i;
+	int				nb_dongles;
+	dongle_t		*dongles;
+	config_t		*config;
+	struct timeval	now;
 
+	config = thread_info->shared_info->config;
 	dongles = thread_info->shared_info->dongles;
 	nb_dongles = thread_info->shared_info->config->nb_coder;
+	gettimeofday(&now, NULL);
 	i = 0;
 	while (i < nb_dongles)
 	{
-		if (dongles[i].has_been_released == 1
-			&& get_time_since_start(&(thread_info[i])) > thread_info->shared_info->config->dongle_cooldown)
+		if (dongles[i].has_been_released == 1 && (timeval_to_ms(now)
+				- (timeval_to_ms(dongles[i].last_release)
+					+ config->dongle_cooldown)) > 0)
 		{
 			dongles[i].available = 1;
 			dongles[i].has_been_released = 0;
+			pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
 		}
 		i++;
 	}
