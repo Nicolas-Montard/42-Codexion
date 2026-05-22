@@ -41,14 +41,28 @@ static void	compile(thread_info_t *thread_info)
 
 static void	debug(thread_info_t *thread_info)
 {
-	thread_print("is debugging", thread_info);
-	usleep(thread_info->shared_info->config->time_to_debug * 1000);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	if (thread_info->shared_info->simulation_ended != 1)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		thread_print("is debugging", thread_info);
+		usleep(thread_info->shared_info->config->time_to_debug * 1000);
+	}
+	else
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 }
 
 static void	refactoring(thread_info_t *thread_info)
 {
-	thread_print("is refactoring", thread_info);
-	usleep(thread_info->shared_info->config->time_to_refactor * 1000);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	if (thread_info->shared_info->simulation_ended != 1)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		thread_print("is refactoring", thread_info);
+		usleep(thread_info->shared_info->config->time_to_refactor * 1000);
+	}
+	else
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 }
 
 void	*thread_function(void *thread_info_void)
@@ -58,20 +72,25 @@ void	*thread_function(void *thread_info_void)
 
 	thread_info = (thread_info_t *)thread_info_void;
 	coder = get_coder(thread_info);
+	pthread_mutex_lock(&coder->lock_compile_start);
 	gettimeofday(&coder->last_compile_start, NULL);
+	pthread_mutex_unlock(&coder->lock_compile_start);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	while (thread_info->shared_info->simulation_ended != 1)
 	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		if (coder->nb_compile < thread_info->shared_info->config->nb_compile_req)
 			compile(thread_info);
 		else
 		{
 			thread_info->thread_ended = 1;
+			pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 			break ;
 		}
-		if (thread_info->shared_info->simulation_ended != 1)
-			debug(thread_info);
-		if (thread_info->shared_info->simulation_ended != 1)
-			refactoring(thread_info);
+		debug(thread_info);
+		refactoring(thread_info);
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	return (NULL);
 }

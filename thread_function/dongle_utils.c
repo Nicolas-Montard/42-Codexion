@@ -9,7 +9,8 @@
 static void	add_to_queue(coder_state_t *coder, dongle_t *dongle,
 		char *scheduler)
 {
-	if (strcmp("fifo", scheduler))
+	pthread_mutex_lock(&dongle->lock);
+	if (strcmp("fifo", scheduler) == 0)
 		dongle->queue[dongle->queue_size] = coder;
 	else
 	{
@@ -29,10 +30,12 @@ static void	add_to_queue(coder_state_t *coder, dongle_t *dongle,
 		}
 	}
 	dongle->queue_size += 1;
+	pthread_mutex_unlock(&dongle->lock);
 }
 
 static void	pop_queue(dongle_t *dongle)
 {
+	pthread_mutex_lock(&dongle->lock);
 	if (dongle->queue_size == 1)
 		dongle->queue[0] = NULL;
 	else
@@ -41,6 +44,7 @@ static void	pop_queue(dongle_t *dongle)
 		dongle->queue[1] = NULL;
 	}
 	dongle->queue_size -= 1;
+	pthread_mutex_unlock(&dongle->lock);
 }
 
 void	release_dongle(dongle_t *dongle)
@@ -56,17 +60,24 @@ void	take_dongle(thread_info_t *thread_info, dongle_t *dongle)
 	coder_state_t	*coder;
 
 	coder = get_coder(thread_info);
-	pthread_mutex_lock(&dongle->lock);
 	add_to_queue(coder, dongle, thread_info->shared_info->config->scheduler);
+	pthread_mutex_lock(&dongle->lock);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	while ((dongle->queue[0] != coder || dongle->available == 0)
 		&& thread_info->shared_info->simulation_ended == 0)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		pthread_cond_wait(&dongle->cond, &dongle->lock);
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	}
 	if (thread_info->shared_info->simulation_ended == 1)
 	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		pthread_mutex_unlock(&dongle->lock);
 		dongle->queue_size -= 1;
 		return ;
 	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	dongle->available = 0;
 	pthread_mutex_unlock(&dongle->lock);
 	pop_queue(dongle);

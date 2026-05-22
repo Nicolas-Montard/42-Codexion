@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/22 13:17:40 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/22 15:09:09 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,6 +65,7 @@ static void	check_dongle_cooldown(thread_info_t *thread_info)
 	i = 0;
 	while (i < nb_dongles)
 	{
+		pthread_mutex_lock(&dongles[i].lock);
 		if (dongles[i].has_been_released == 1 && (timeval_to_ms(now)
 				- (timeval_to_ms(dongles[i].last_release)
 					+ config->dongle_cooldown)) > 0)
@@ -73,6 +74,7 @@ static void	check_dongle_cooldown(thread_info_t *thread_info)
 			dongles[i].has_been_released = 0;
 			pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
 		}
+		pthread_mutex_unlock(&dongles[i].lock);
 		i++;
 	}
 }
