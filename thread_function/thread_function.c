@@ -65,7 +65,9 @@ static void	compile(thread_info_t *thread_info)
 	usleep(thread_info->shared_info->config->time_to_compile * 1000);
 	coder->nb_compile += 1;
 	release_dongle(dongles[0]);
+	printf("TEST RELEASE 1\n");
 	release_dongle(dongles[1]);
+	printf("TEST RELEASE 2\n");
 }
 
 static void	debug(thread_info_t *thread_info)

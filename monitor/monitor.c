@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/22 16:14:01 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/24 12:15:47 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,10 @@ static void	check_dongle_cooldown(thread_info_t *thread_info)
 		{
 			dongles[i].available = 1;
 			dongles[i].has_been_released = 0;
-			pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
+			pthread_cond_broadcast(&dongles[i].cond);
+			pthread_cond_broadcast(&dongles[(i + 1) % nb_dongles].cond);
+			pthread_cond_broadcast(&dongles[(i - 1 + nb_dongles)
+				% nb_dongles].cond);
 		}
 		pthread_mutex_unlock(&dongles[i].lock);
 		i++;
