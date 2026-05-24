@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/24 16:56:14 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/24 17:56:25 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,6 +95,11 @@ static int	check_started(thread_info_t *thread_info, int nb_coder)
 	int	i;
 
 	i = 0;
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	if (thread_info->shared_info->can_start = 0)
+	{
+	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	while (i < nb_coder)
 	{
 		pthread_mutex_lock(&thread_info[i].lock);
@@ -159,7 +164,7 @@ static void	*monitor(void *thread_info_void)
 
 pthread_t	create_monitor(int *error, thread_info_t *threads_info)
 {
-	pthread_t monitor_thread;
+	pthread_t	monitor_thread;
 
 	if (pthread_create(&monitor_thread, NULL, monitor, threads_info) != 0)
 	{
