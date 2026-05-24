@@ -39,35 +39,6 @@ static void	compile(thread_info_t *thread_info)
 	release_dongle(second_dongle);
 }
 
-// static void	compile(thread_info_t *thread_info)
-// {
-// 	dongle_t		*dongles[2];
-// 	coder_state_t	*coder;
-
-// 	coder = get_coder(thread_info);
-// 	dongles[0] = get_first_dongle(thread_info);
-// 	dongles[1] = get_second_dongle(thread_info);
-// 	if (dongles[0] == dongles[1])
-// 		usleep((thread_info->shared_info->config->time_to_burnout + 20) * 1000);
-// 	if (thread_info->shared_info->simulation_ended == 1)
-// 		return ;
-// 	take_dongles(thread_info, dongles);
-// 	if (thread_info->shared_info->simulation_ended == 1)
-// 	{
-// 		release_dongle(dongles[0]);
-// 		release_dongle(dongles[1]);
-// 		return ;
-// 	}
-// 	thread_print("has taken a dongle", thread_info);
-// 	thread_print("has taken a dongle", thread_info);
-// 	change_compile_start(thread_info);
-// 	thread_print("is compiling", thread_info);
-// 	usleep(thread_info->shared_info->config->time_to_compile * 1000);
-// 	coder->nb_compile += 1;
-// 	release_dongle(dongles[0]);
-// 	release_dongle(dongles[1]);
-// }
-
 static void	debug(thread_info_t *thread_info)
 {
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
@@ -101,6 +72,8 @@ void	*thread_function(void *thread_info_void)
 
 	thread_info = (thread_info_t *)thread_info_void;
 	coder = get_coder(thread_info);
+	if (coder->id % 2 == 0)
+		usleep(500);
 	pthread_mutex_lock(&coder->lock_compile_start);
 	gettimeofday(&coder->last_compile_start, NULL);
 	pthread_mutex_unlock(&coder->lock_compile_start);
