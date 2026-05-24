@@ -9,7 +9,6 @@
 static void	add_to_queue(coder_state_t *coder, dongle_t *dongle,
 		char *scheduler)
 {
-	pthread_mutex_lock(&dongle->lock);
 	if (strcmp("fifo", scheduler) == 0)
 		dongle->queue[dongle->queue_size] = coder;
 	else
@@ -18,7 +17,7 @@ static void	add_to_queue(coder_state_t *coder, dongle_t *dongle,
 			dongle->queue[0] = coder;
 		else
 		{
-			if (timeval_to_ms(dongle->queue[0]->last_compile_start) > timeval_to_ms(coder->last_compile_start))
+			if (timeval_to_ms(dongle->queue[0]->last_compile_start) < timeval_to_ms(coder->last_compile_start))
 			{
 				dongle->queue[1] = dongle->queue[0];
 				dongle->queue[0] = coder;
@@ -30,12 +29,10 @@ static void	add_to_queue(coder_state_t *coder, dongle_t *dongle,
 		}
 	}
 	dongle->queue_size += 1;
-	pthread_mutex_unlock(&dongle->lock);
 }
 
 static void	pop_queue(dongle_t *dongle)
 {
-	pthread_mutex_lock(&dongle->lock);
 	if (dongle->queue_size == 1)
 		dongle->queue[0] = NULL;
 	else
@@ -44,7 +41,6 @@ static void	pop_queue(dongle_t *dongle)
 		dongle->queue[1] = NULL;
 	}
 	dongle->queue_size -= 1;
-	pthread_mutex_unlock(&dongle->lock);
 }
 
 void	release_dongle(dongle_t *dongle)
@@ -55,76 +51,76 @@ void	release_dongle(dongle_t *dongle)
 	pthread_mutex_unlock(&dongle->lock);
 }
 
-void	take_dongles(thread_info_t *thread_info, dongle_t *dongles[2])
-{
-	coder_state_t	*coder;
-	struct timespec	end_timer;
-
-	coder = get_coder(thread_info);
-	add_to_queue(coder, dongles[0],
-		thread_info->shared_info->config->scheduler);
-	add_to_queue(coder, dongles[1],
-		thread_info->shared_info->config->scheduler);
-	pthread_mutex_lock(&(dongles[0]->lock));
-	pthread_mutex_lock(&(dongles[1]->lock));
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	while (((dongles[0]->queue[0] != coder || dongles[1]->queue[0] != coder)
-			|| (dongles[0]->available == 0 || dongles[1]->available == 0))
-		&& thread_info->shared_info->simulation_ended == 0)
-	{
-		end_timer = make_timespec(thread_info->shared_info->config->time_to_burnout
-				+ 10);
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		pthread_mutex_unlock(&(dongles[1]->lock));
-		pthread_cond_timedwait(&(dongles[0]->cond), &(dongles[0]->lock),
-			&end_timer);
-		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-		pthread_mutex_lock(&(dongles[1]->lock));
-	}
-	printf("TEST %d\n", thread_info->id);
-	if (thread_info->shared_info->simulation_ended == 1)
-	{
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		pthread_mutex_unlock(&(dongles[0]->lock));
-		pthread_mutex_unlock(&(dongles[1]->lock));
-		return ;
-	}
-	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-	dongles[0]->available = 0;
-	dongles[1]->available = 0;
-	pthread_mutex_unlock(&(dongles[0]->lock));
-	pthread_mutex_unlock(&(dongles[1]->lock));
-	pop_queue(dongles[0]);
-	pop_queue(dongles[1]);
-}
-
-// void	take_dongle(thread_info_t *thread_info, dongle_t *dongle)
+// void	take_dongles(thread_info_t *thread_info, dongle_t *dongles[2])
 // {
 // 	coder_state_t	*coder;
 // 	struct timespec	end_timer;
 
 // 	coder = get_coder(thread_info);
-// 	add_to_queue(coder, dongle, thread_info->shared_info->config->scheduler);
-// 	pthread_mutex_lock(&dongle->lock);
+// 	add_to_queue(coder, dongles[0],
+// 		thread_info->shared_info->config->scheduler);
+// 	add_to_queue(coder, dongles[1],
+// 		thread_info->shared_info->config->scheduler);
+// 	pthread_mutex_lock(&(dongles[0]->lock));
+// 	pthread_mutex_lock(&(dongles[1]->lock));
 // 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-// 	while ((dongle->queue[0] != coder || dongle->available == 0)
+// 	while (((dongles[0]->queue[0] != coder || dongles[1]->queue[0] != coder)
+// 			|| (dongles[0]->available == 0 || dongles[1]->available == 0))
 // 		&& thread_info->shared_info->simulation_ended == 0)
 // 	{
 // 		end_timer = make_timespec(thread_info->shared_info->config->time_to_burnout
 // 				+ 10);
 // 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-// 		pthread_cond_timedwait(&dongle->cond, &dongle->lock, &end_timer);
+// 		pthread_mutex_unlock(&(dongles[1]->lock));
+// 		pthread_cond_timedwait(&(dongles[0]->cond), &(dongles[0]->lock),
+// 			&end_timer);
 // 		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+// 		pthread_mutex_lock(&(dongles[1]->lock));
 // 	}
+// 	printf("TEST %d\n", thread_info->id);
 // 	if (thread_info->shared_info->simulation_ended == 1)
 // 	{
 // 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-// 		pthread_mutex_unlock(&dongle->lock);
-// 		dongle->queue_size -= 1;
+// 		pthread_mutex_unlock(&(dongles[0]->lock));
+// 		pthread_mutex_unlock(&(dongles[1]->lock));
 // 		return ;
 // 	}
 // 	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-// 	dongle->available = 0;
-// 	pthread_mutex_unlock(&dongle->lock);
-// 	pop_queue(dongle);
+// 	dongles[0]->available = 0;
+// 	dongles[1]->available = 0;
+// 	pthread_mutex_unlock(&(dongles[0]->lock));
+// 	pthread_mutex_unlock(&(dongles[1]->lock));
+// 	pop_queue(dongles[0]);
+// 	pop_queue(dongles[1]);
 // }
+
+void	take_dongle(thread_info_t *thread_info, dongle_t *dongle)
+{
+	coder_state_t	*coder;
+	struct timespec	end_timer;
+
+	coder = get_coder(thread_info);
+	pthread_mutex_lock(&dongle->lock);
+	add_to_queue(coder, dongle, thread_info->shared_info->config->scheduler);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	while ((dongle->queue[0] != coder || dongle->available == 0)
+		&& thread_info->shared_info->simulation_ended == 0)
+	{
+		end_timer = make_timespec(thread_info->shared_info->config->time_to_burnout
+				+ 10);
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		pthread_cond_timedwait(&dongle->cond, &dongle->lock, &end_timer);
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	}
+	if (thread_info->shared_info->simulation_ended == 1)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		pthread_mutex_unlock(&dongle->lock);
+		dongle->queue_size -= 1;
+		return ;
+	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+	dongle->available = 0;
+	pop_queue(dongle);
+	pthread_mutex_unlock(&dongle->lock);
+}
