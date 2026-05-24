@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/24 12:15:47 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/24 16:56:14 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,14 @@ static int	check_burnout(thread_info_t *thread_info, int nb_coder)
 	i = 0;
 	while (i < nb_coder)
 	{
+		pthread_mutex_lock(&thread_info[i].lock);
+		if (thread_info[i].thread_ended == 1)
+		{
+			pthread_mutex_unlock(&thread_info[i].lock);
+			i++;
+			continue ;
+		}
+		pthread_mutex_unlock(&thread_info[i].lock);
 		pthread_mutex_lock(&thread_info->shared_info->coders_states[i].lock_compile_start);
 		last_compile_ms = timeval_to_ms(thread_info->shared_info->coders_states[i].last_compile_start);
 		pthread_mutex_unlock(&thread_info->shared_info->coders_states[i].lock_compile_start);
@@ -82,6 +90,25 @@ static void	check_dongle_cooldown(thread_info_t *thread_info)
 	}
 }
 
+static int	check_started(thread_info_t *thread_info, int nb_coder)
+{
+	int	i;
+
+	i = 0;
+	while (i < nb_coder)
+	{
+		pthread_mutex_lock(&thread_info[i].lock);
+		if (thread_info[i].id % 2 == 0 && thread_info[i].has_started == 0)
+		{
+			pthread_mutex_unlock(&thread_info[i].lock);
+			return (0);
+		}
+		pthread_mutex_unlock(&thread_info[i].lock);
+		i++;
+	}
+	return (1);
+}
+
 static int	check_all_ended(thread_info_t *thread_info, int nb_coder)
 {
 	int	i;
@@ -107,7 +134,7 @@ static void	broadcast_all(thread_info_t *thread_info)
 		i++;
 	}
 }
-
+// TODO set the variable can start
 static void	*monitor(void *thread_info_void)
 {
 	thread_info_t	*thread_info;

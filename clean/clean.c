@@ -47,6 +47,19 @@ void	free_shared_info(shared_info_t *shared, int nb_coder)
 		free_coders_state(shared->coders_states, nb_coder);
 }
 
+void	free_threads_info(thread_info_t *threads, int nb_coder)
+{
+	int	i;
+
+	i = 0;
+	while (i < nb_coder)
+	{
+		pthread_mutex_destroy(&threads[i].lock);
+		i++;
+	}
+	free(threads);
+}
+
 void	free_main(thread_info_t *thread_info, pthread_t *threads,
 		shared_info_t *shared, config_t *config)
 {
@@ -60,7 +73,7 @@ void	free_main(thread_info_t *thread_info, pthread_t *threads,
 	if (threads != NULL)
 		free(threads);
 	if (thread_info != NULL)
-		free(thread_info);
+		free_threads_info(thread_info, nb_coder);
 	if (shared != NULL)
 		free_shared_info(shared, nb_coder);
 	if (config != NULL)
