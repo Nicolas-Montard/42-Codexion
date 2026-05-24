@@ -64,14 +64,6 @@ void	take_dongles(thread_info_t *thread_info, dongle_t *dongles[2])
 	add_to_queue(coder, dongles[1],
 		thread_info->shared_info->config->scheduler);
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	printf("CODER %d waiting: d0.avail=%d d0.queue0=%p coder=%p"
-			" | d1.avail=%d d1.queue0=%p\n",
-			thread_info->id,
-			dongles[0]->available,
-			dongles[0]->queue[0],
-			coder,
-			dongles[1]->available,
-			dongles[1]->queue[0]);
 	while (((dongles[0]->queue[0] != coder || dongles[1]->queue[0] != coder)
 			|| (dongles[0]->available == 0 || dongles[1]->available == 0))
 		&& thread_info->shared_info->simulation_ended == 0)
@@ -85,7 +77,6 @@ void	take_dongles(thread_info_t *thread_info, dongle_t *dongles[2])
 		pthread_mutex_lock(&(dongles[1]->lock));
 		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	}
-	printf("TEST %d\n", thread_info->id);
 	if (thread_info->shared_info->simulation_ended == 1)
 	{
 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
