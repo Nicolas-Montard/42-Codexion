@@ -6,12 +6,13 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:03:32 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/07 05:18:03 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 13:06:11 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config.h"
 #include "parsing.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>

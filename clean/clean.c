@@ -61,19 +61,22 @@ void	free_threads_info(thread_info_t *threads, int nb_coder)
 }
 
 void	free_main(thread_info_t *thread_info, pthread_t *threads,
-		shared_info_t *shared, config_t *config)
+		config_t *config)
 {
-	int	i;
-	int	nb_coder;
+	int				nb_coder;
+	shared_info_t	*shared;
 
+	shared = NULL;
 	nb_coder = 0;
 	if (config != NULL)
 		nb_coder = config->nb_coder;
-	i = 0;
 	if (threads != NULL)
 		free(threads);
 	if (thread_info != NULL)
+	{
+		shared = thread_info->shared_info;
 		free_threads_info(thread_info, nb_coder);
+	}
 	if (shared != NULL)
 		free_shared_info(shared, nb_coder);
 	if (config != NULL)

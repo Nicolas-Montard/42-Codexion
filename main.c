@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:20:55 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/20 14:02:48 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 13:05:30 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,6 @@ int	main(int argc, char *argv[])
 				0));
 	join_threads(threads, config->nb_coder);
 	pthread_join(monitor, NULL);
-	free_main(threads_info, threads, &shared, config);
+	free_main(threads_info, threads, config);
 	return (0);
 }

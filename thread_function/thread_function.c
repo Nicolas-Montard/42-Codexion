@@ -62,11 +62,21 @@ void	*thread_function(void *thread_info_void)
 {
 	thread_info_t	*thread_info;
 	coder_state_t	*coder;
+	struct timespec	start_timer;
 
 	thread_info = (thread_info_t *)thread_info_void;
 	coder = get_coder(thread_info);
 	if (coder->id % 2 == 1)
-		usleep(800);
+	{
+		start_timer = make_timespec(2000);
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+		while (thread_info->shared_info->can_start == 0)
+		{
+			pthread_cond_timedwait(&thread_info->shared_info->can_start_cond,
+				&thread_info->shared_info->simulation_lock, &start_timer);
+		}
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+	}
 	pthread_mutex_lock(&thread_info->lock);
 	thread_info->has_started = 1;
 	pthread_mutex_unlock(&thread_info->lock);

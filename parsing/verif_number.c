@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:20:59 by nmontard          #+#    #+#             */
-/*   Updated: 2026/04/20 16:09:59 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 13:09:41 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ static int	is_number(char *number)
 
 int	verif_number(char *number)
 {
-	if (strlen(number) == 1 && number[0] == '0')
+	if (strlen(number) != 1 && number[0] == '0')
 		return (0);
 	if (!is_number(number))
 		return (0);

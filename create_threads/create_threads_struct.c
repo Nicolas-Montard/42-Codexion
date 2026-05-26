@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/24 16:48:10 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 11:36:53 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,6 +118,7 @@ static int	init_shared_info(shared_info_t *shared_info, config_t *config,
 		return (*error = 7);
 	}
 	shared_info->simulation_ended = 0;
+	shared_info->can_start = 0;
 	shared_info->config = config;
 	shared_info->coders_states = create_coders(config->nb_coder, error);
 	if (shared_info->coders_states == NULL)
