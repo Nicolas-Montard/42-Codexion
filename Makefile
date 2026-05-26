@@ -6,7 +6,7 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/05/19 16:32:49 by nmontard         ###   ########.fr        #
+#    Updated: 2026/05/26 12:16:50 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,10 +24,11 @@ OBJECTS = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.o))
 DEPS    = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.d))
 NAME    = codexion
 
+
 all: $(NAME)
 
 $(NAME): $(OBJECTS)
-	$(CC) $^ -o $@
+	$(CC) $(CFLAGS) $^ -o $@
 
 $(DIR_TO_CREATE)/%.o: %.c
 	mkdir -p $(dir $@)
@@ -43,6 +44,9 @@ re:
 	$(MAKE) fclean
 	$(MAKE) $(NAME)
 
-.PHONY: all clean fclean re
+debug: fclean
+	$(MAKE) CFLAGS="-Wall -Wextra -Werror -pthread -MMD -MP -I headers -fsanitize=thread" 
+
+.PHONY: all clean fclean re debug
 
 -include $(DEPS)

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/20 15:58:29 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 11:36:53 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,7 +83,7 @@ static dongle_t	*create_dongles(int nb_coder, int *error)
 		if (pthread_cond_init(&dongles[i].cond, NULL) != 0)
 		{
 			pthread_mutex_destroy(&dongles[i].lock);
-			*error = 6;
+			*error = 7;
 			while (--i >= 0)
 			{
 				pthread_mutex_destroy(&dongles[i].lock);
@@ -111,13 +111,21 @@ static int	init_shared_info(shared_info_t *shared_info, config_t *config,
 		pthread_mutex_destroy(&shared_info->print_lock);
 		return (*error = 6);
 	}
+	if (pthread_cond_init(&shared_info->can_start_cond, NULL) != 0)
+	{
+		pthread_mutex_destroy(&shared_info->print_lock);
+		pthread_mutex_destroy(&shared_info->simulation_lock);
+		return (*error = 7);
+	}
 	shared_info->simulation_ended = 0;
+	shared_info->can_start = 0;
 	shared_info->config = config;
 	shared_info->coders_states = create_coders(config->nb_coder, error);
 	if (shared_info->coders_states == NULL)
 	{
 		pthread_mutex_destroy(&shared_info->print_lock);
 		pthread_mutex_destroy(&shared_info->simulation_lock);
+		pthread_cond_destroy(&shared_info->can_start_cond);
 		return (*error);
 	}
 	shared_info->dongles = create_dongles(config->nb_coder, error);
@@ -125,6 +133,7 @@ static int	init_shared_info(shared_info_t *shared_info, config_t *config,
 	{
 		pthread_mutex_destroy(&shared_info->print_lock);
 		pthread_mutex_destroy(&shared_info->simulation_lock);
+		pthread_cond_destroy(&shared_info->can_start_cond);
 		free(shared_info->coders_states);
 		return (*error);
 	}
@@ -149,6 +158,16 @@ thread_info_t	*create_threads_struct(config_t *config,
 	i = 0;
 	while (i < config->nb_coder)
 	{
+		if (pthread_mutex_init(&threads[i].lock, NULL) != 0)
+		{
+			*error = 6;
+			while (--i >= 0)
+				pthread_mutex_destroy(&threads[i].lock);
+			free(threads);
+			free_shared_info(shared_info, config->nb_coder);
+			return (NULL);
+		}
+		threads[i].has_started = 0;
 		threads[i].shared_info = shared_info;
 		threads[i].thread_ended = 0;
 		threads[i].id = i;

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:29:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/20 13:40:27 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 13:05:04 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ error value indicate the type of error:
 4: error with gettimeofdays
 5: error in thread creation
 6: error in mutex creation
+7: error in cond creation
 */
 
 int	error_manager(int error, thread_info_t *thread_info, pthread_t *threads,
@@ -32,10 +33,11 @@ int	error_manager(int error, thread_info_t *thread_info, pthread_t *threads,
 {
 	if (thread_info != NULL)
 		thread_info->shared_info->simulation_ended = 1;
-	join_threads(threads, config->nb_coder);
+	if (config != NULL)
+		join_threads(threads, config->nb_coder);
 	if (monitor_created == 1)
 		pthread_join(monitor, NULL);
-	free_main(thread_info, threads, thread_info[0].shared_info, config);
+	free_main(thread_info, threads, config);
 	fprintf(stderr, "Error: ");
 	if (error == 1)
 		fprintf(stderr, "There isn´t the right number of parameters\n");
@@ -49,5 +51,7 @@ int	error_manager(int error, thread_info_t *thread_info, pthread_t *threads,
 		fprintf(stderr, "A thread hasn't been able to create itself");
 	if (error == 6)
 		fprintf(stderr, "A mutex hasn't been able to create itself");
+	if (error == 7)
+		fprintf(stderr, "A cond hasn't been able to create itself");
 	return (1);
 }

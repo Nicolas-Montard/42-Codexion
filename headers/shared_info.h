@@ -13,6 +13,8 @@ typedef struct shared_info
 	dongle_t		*dongles;
 	config_t		*config;
 	coder_state_t	*coders_states;
+	pthread_cond_t	can_start_cond;
+	int				can_start;
 }					shared_info_t;
 
 #endif

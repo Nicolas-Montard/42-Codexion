@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/22 16:14:01 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 13:45:12 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,14 @@ static int	check_burnout(thread_info_t *thread_info, int nb_coder)
 	i = 0;
 	while (i < nb_coder)
 	{
+		pthread_mutex_lock(&thread_info[i].lock);
+		if (thread_info[i].thread_ended == 1)
+		{
+			pthread_mutex_unlock(&thread_info[i].lock);
+			i++;
+			continue ;
+		}
+		pthread_mutex_unlock(&thread_info[i].lock);
 		pthread_mutex_lock(&thread_info->shared_info->coders_states[i].lock_compile_start);
 		last_compile_ms = timeval_to_ms(thread_info->shared_info->coders_states[i].last_compile_start);
 		pthread_mutex_unlock(&thread_info->shared_info->coders_states[i].lock_compile_start);
@@ -72,11 +80,51 @@ static void	check_dongle_cooldown(thread_info_t *thread_info)
 		{
 			dongles[i].available = 1;
 			dongles[i].has_been_released = 0;
-			pthread_cond_broadcast(&thread_info->shared_info->dongles[i].cond);
+			pthread_cond_broadcast(&dongles[i].cond);
+			pthread_mutex_unlock(&dongles[i].lock);
+			pthread_mutex_lock(&dongles[(i + 1) % nb_dongles].lock);
+			pthread_cond_broadcast(&dongles[(i + 1) % nb_dongles].cond);
+			pthread_mutex_unlock(&dongles[(i + 1) % nb_dongles].lock);
+			pthread_mutex_lock(&dongles[(i - 1 + nb_dongles)
+				% nb_dongles].lock);
+			pthread_cond_broadcast(&dongles[(i - 1 + nb_dongles)
+				% nb_dongles].cond);
+			pthread_mutex_unlock(&dongles[(i - 1 + nb_dongles)
+				% nb_dongles].lock);
 		}
-		pthread_mutex_unlock(&dongles[i].lock);
+		else
+			pthread_mutex_unlock(&dongles[i].lock);
 		i++;
 	}
+}
+
+static void	check_started(thread_info_t *thread_info, int nb_coder)
+{
+	int	i;
+
+	i = 0;
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	if (thread_info->shared_info->can_start == 1)
+	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		return ;
+	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+	while (i < nb_coder)
+	{
+		pthread_mutex_lock(&thread_info[i].lock);
+		if (thread_info[i].id % 2 == 0 && thread_info[i].has_started == 0)
+		{
+			pthread_mutex_unlock(&thread_info[i].lock);
+			return ;
+		}
+		pthread_mutex_unlock(&thread_info[i].lock);
+		i++;
+	}
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	thread_info->shared_info->can_start = 1;
+	pthread_cond_broadcast(&thread_info->shared_info->can_start_cond);
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 }
 
 static int	check_all_ended(thread_info_t *thread_info, int nb_coder)
@@ -86,8 +134,13 @@ static int	check_all_ended(thread_info_t *thread_info, int nb_coder)
 	i = 0;
 	while (i < nb_coder)
 	{
+		pthread_mutex_lock(&thread_info[i].lock);
 		if (thread_info[i].thread_ended == 0)
+		{
+			pthread_mutex_unlock(&thread_info[i].lock);
 			return (0);
+		}
+		pthread_mutex_unlock(&thread_info[i].lock);
 		i++;
 	}
 	return (1);
@@ -114,6 +167,7 @@ static void	*monitor(void *thread_info_void)
 	nb_coder = thread_info->shared_info->config->nb_coder;
 	while (thread_info->shared_info->simulation_ended != 1)
 	{
+		check_started(thread_info, nb_coder);
 		if (check_burnout(thread_info, nb_coder))
 			break ;
 		check_dongle_cooldown(thread_info);
@@ -129,7 +183,7 @@ static void	*monitor(void *thread_info_void)
 
 pthread_t	create_monitor(int *error, thread_info_t *threads_info)
 {
-	pthread_t monitor_thread;
+	pthread_t	monitor_thread;
 
 	if (pthread_create(&monitor_thread, NULL, monitor, threads_info) != 0)
 	{
