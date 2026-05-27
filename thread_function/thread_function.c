@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:17 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 13:56:26 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:43:17 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,8 @@ static void	wait_for_start(t_thread_info *thread_info)
 {
 	struct timespec	start_timer;
 
-	start_timer = make_timespec(2000);
+	start_timer = 
+	make_timespec(thread_info->shared_info->config->dongle_cooldown);
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	while (thread_info->shared_info->can_start == 0)
 	{

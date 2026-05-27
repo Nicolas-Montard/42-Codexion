@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/27 13:50:20 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 13:53:55 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/27 15:35:54 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,12 +40,15 @@ void	compile(t_thread_info *thread_info)
 	if (thread_info->shared_info->simulation_ended == 1)
 		return ;
 	take_dongles(thread_info, dongles);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	if (thread_info->shared_info->simulation_ended == 1)
 	{
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		release_dongle(dongles[0]);
 		release_dongle(dongles[1]);
 		return ;
 	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 	do_compile(thread_info, dongles, coder);
 }
 
