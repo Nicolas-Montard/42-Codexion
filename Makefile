@@ -6,19 +6,21 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/05/26 12:16:50 by nmontard         ###   ########.fr        #
+#    Updated: 2026/05/27 13:51:52 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC      = cc
-CFLAGS  = -Wall -Wextra -Werror -pthread -MMD -MP -I headers -ggdb
+CFLAGS  = -Wall -Wextra -Werror -pthread -MMD -MP -I headers
 
 DIR_TO_CREATE = .obj_dep
 
 CFILES  = create_threads/create_threads.c create_threads/create_threads_struct.c \
           parsing/error_manager.c parsing/parsing.c parsing/verif_number.c \
           utils/utils.c main.c clean/clean.c thread_function/thread_function.c \
-		  thread_function/utils.c monitor/monitor.c thread_function/dongle_utils.c
+		  thread_function/utils.c monitor/monitor.c thread_function/dongle_utils.c \
+		  create_threads/create_threads_struct_utils.c monitor/monitor_utils.c \
+		  thread_function/utils2.c thread_function/thread_function2.c
 
 OBJECTS = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.o))
 DEPS    = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.d))
@@ -44,9 +46,6 @@ re:
 	$(MAKE) fclean
 	$(MAKE) $(NAME)
 
-debug: fclean
-	$(MAKE) CFLAGS="-Wall -Wextra -Werror -pthread -MMD -MP -I headers -fsanitize=thread" 
-
-.PHONY: all clean fclean re debug
+.PHONY: all clean fclean re
 
 -include $(DEPS)

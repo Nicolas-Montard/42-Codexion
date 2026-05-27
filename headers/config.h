@@ -6,13 +6,14 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 13:08:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/06 14:09:21 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 16:00:28 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef CONFIG_H
 # define CONFIG_H
 # include <sys/time.h>
+
 typedef struct config
 {
 	int				nb_coder;
@@ -24,5 +25,5 @@ typedef struct config
 	int				dongle_cooldown;
 	char			*scheduler;
 	struct timeval	started_at;
-}					config_t;
+}					t_config;
 #endif

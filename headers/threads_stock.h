@@ -1,20 +1,23 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.h                                            :+:      :+:    :+:   */
+/*   threads_stock.h                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/05/26 14:46:58 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 14:46:59 by nmontard         ###   ########.fr       */
+/*   Created: 2026/05/26 15:48:47 by nmontard          #+#    #+#             */
+/*   Updated: 2026/05/26 16:01:04 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_H
-# define UTILS_H
-# include "stdlib.h"
+#ifndef THREADS_STOCK_H
+# define THREADS_STOCK_H
+# include <pthread.h>
 
-void	*ft_calloc(size_t nmemb, size_t size);
-void	join_threads(pthread_t *threads, int nb_threads);
+typedef struct threads_stock
+{
+	pthread_t	*threads;
+	pthread_t	monitor;
+}	t_threads_stock;
 
 #endif

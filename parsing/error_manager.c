@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/20 15:29:01 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 13:05:04 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 15:35:43 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,15 +28,13 @@ error value indicate the type of error:
 7: error in cond creation
 */
 
-int	error_manager(int error, thread_info_t *thread_info, pthread_t *threads,
-		config_t *config, pthread_t monitor, int monitor_created)
+int	error_manager(int error, t_thread_info *thread_info, pthread_t *threads,
+		t_config *config)
 {
 	if (thread_info != NULL)
 		thread_info->shared_info->simulation_ended = 1;
 	if (config != NULL)
 		join_threads(threads, config->nb_coder);
-	if (monitor_created == 1)
-		pthread_join(monitor, NULL);
 	free_main(thread_info, threads, config);
 	fprintf(stderr, "Error: ");
 	if (error == 1)

@@ -1,106 +1,76 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   thread_function.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/05/26 14:47:17 by nmontard          #+#    #+#             */
+/*   Updated: 2026/05/27 13:56:26 by nmontard         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "thread_function.h"
 #include "thread_info.h"
-#include <stdio.h>
 #include <unistd.h>
 
-static void	compile(thread_info_t *thread_info)
+static void	wait_for_start(t_thread_info *thread_info)
 {
-	dongle_t		*dongles[2];
-	coder_state_t	*coder;
-
-	coder = get_coder(thread_info);
-	dongles[0] = get_first_dongle(thread_info);
-	dongles[1] = get_second_dongle(thread_info);
-	if (dongles[0] == dongles[1])
-		usleep((thread_info->shared_info->config->time_to_burnout + 20) * 1000);
-	if (thread_info->shared_info->simulation_ended == 1)
-		return ;
-	take_dongles(thread_info, dongles);
-	if (thread_info->shared_info->simulation_ended == 1)
-	{
-		release_dongle(dongles[0]);
-		release_dongle(dongles[1]);
-		return ;
-	}
-	thread_print("has taken a dongle", thread_info);
-	thread_print("has taken a dongle", thread_info);
-	change_compile_start(thread_info);
-	thread_print("is compiling", thread_info);
-	usleep(thread_info->shared_info->config->time_to_compile * 1000);
-	coder->nb_compile += 1;
-	release_dongle(dongles[0]);
-	release_dongle(dongles[1]);
-}
-
-static void	debug(thread_info_t *thread_info)
-{
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	if (thread_info->shared_info->simulation_ended != 1)
-	{
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		thread_print("is debugging", thread_info);
-		usleep(thread_info->shared_info->config->time_to_debug * 1000);
-	}
-	else
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-}
-
-static void	refactoring(thread_info_t *thread_info)
-{
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	if (thread_info->shared_info->simulation_ended != 1)
-	{
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		thread_print("is refactoring", thread_info);
-		usleep(thread_info->shared_info->config->time_to_refactor * 1000);
-	}
-	else
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-}
-
-void	*thread_function(void *thread_info_void)
-{
-	thread_info_t	*thread_info;
-	coder_state_t	*coder;
 	struct timespec	start_timer;
 
-	thread_info = (thread_info_t *)thread_info_void;
-	coder = get_coder(thread_info);
-	if (coder->id % 2 == 1)
+	start_timer = make_timespec(2000);
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	while (thread_info->shared_info->can_start == 0)
 	{
-		start_timer = make_timespec(2000);
-		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-		while (thread_info->shared_info->can_start == 0)
-		{
-			pthread_cond_timedwait(&thread_info->shared_info->can_start_cond,
-				&thread_info->shared_info->simulation_lock, &start_timer);
-		}
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		pthread_cond_timedwait(&thread_info->shared_info->can_start_cond,
+			&thread_info->shared_info->simulation_lock, &start_timer);
 	}
+	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+}
+
+static void	init_thread(t_thread_info *thread_info, t_coder_state *coder)
+{
+	if (coder->id % 2 == 1)
+		wait_for_start(thread_info);
 	pthread_mutex_lock(&thread_info->lock);
 	thread_info->has_started = 1;
 	pthread_mutex_unlock(&thread_info->lock);
 	pthread_mutex_lock(&coder->lock_compile_start);
 	gettimeofday(&coder->last_compile_start, NULL);
 	pthread_mutex_unlock(&coder->lock_compile_start);
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	while (thread_info->shared_info->simulation_ended != 1)
+}
+
+static void	run_loop(t_thread_info *th_info, t_coder_state *coder)
+{
+	pthread_mutex_lock(&th_info->shared_info->simulation_lock);
+	while (th_info->shared_info->simulation_ended != 1)
 	{
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		if (coder->nb_compile < thread_info->shared_info->config->nb_compile_req)
-			compile(thread_info);
+		pthread_mutex_unlock(&th_info->shared_info->simulation_lock);
+		if (coder->nb_compile < th_info->shared_info->config->nb_compile_req)
+			compile(th_info);
 		else
 		{
-			pthread_mutex_lock(&thread_info->lock);
-			thread_info->thread_ended = 1;
-			pthread_mutex_unlock(&thread_info->lock);
-			pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+			pthread_mutex_lock(&th_info->lock);
+			th_info->thread_ended = 1;
+			pthread_mutex_unlock(&th_info->lock);
+			pthread_mutex_lock(&th_info->shared_info->simulation_lock);
 			break ;
 		}
-		debug(thread_info);
-		refactoring(thread_info);
-		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+		debug(th_info);
+		refactoring(th_info);
+		pthread_mutex_lock(&th_info->shared_info->simulation_lock);
 	}
-	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+	pthread_mutex_unlock(&th_info->shared_info->simulation_lock);
+}
+
+void	*thread_function(void *thread_info_void)
+{
+	t_thread_info	*thread_info;
+	t_coder_state	*coder;
+
+	thread_info = (t_thread_info *)thread_info_void;
+	coder = get_coder(thread_info);
+	init_thread(thread_info, coder);
+	run_loop(thread_info, coder);
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 01:38:56 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/14 02:59:59 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 15:11:36 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,16 @@
 #include <pthread.h>
 #include <stdio.h>
 
-pthread_t	*create_threads(int *error, thread_info_t *threads_info)
+static void	cancel_threads(pthread_t *threads, t_shared_info *shared_info,
+		int i)
+{
+	shared_info->simulation_ended = 1;
+	while (--i >= 0)
+		pthread_join(threads[i], NULL);
+	free(threads);
+}
+
+pthread_t	*create_threads(int *error, t_thread_info *threads_info)
 {
 	pthread_t	*threads;
 	int			i;
@@ -39,10 +48,7 @@ pthread_t	*create_threads(int *error, thread_info_t *threads_info)
 				&threads_info[i]) != 0)
 		{
 			*error = 5;
-			threads_info[0].shared_info->simulation_ended = 1;
-			while (--i >= 0)
-				pthread_join(threads[i], NULL);
-			free(threads);
+			cancel_threads(threads, threads_info[0].shared_info, i);
 			return (NULL);
 		}
 		i++;

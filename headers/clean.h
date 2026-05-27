@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 04:31:35 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 12:59:14 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/26 15:05:46 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,9 +16,9 @@
 # include "thread_info.h"
 # include <pthread.h>
 
-void	free_coders_state(coder_state_t *coders_state, int size);
-void	free_main(thread_info_t *thread_info, pthread_t *threads,
-			config_t *config);
-void	free_dongles(dongle_t *dongles, int size);
-void	free_shared_info(shared_info_t *shared, int nb_coder);
+void	free_coders_state(t_coder_state *coders_state, int size);
+void	free_main(t_thread_info *thread_info, pthread_t *threads,
+			t_config *config);
+void	free_dongles(t_dongle *dongles, int size);
+void	free_shared_info(t_shared_info *shared, int nb_coder);
 #endif
