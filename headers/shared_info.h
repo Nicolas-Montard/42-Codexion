@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:46:52 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 15:01:55 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 03:19:37 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ typedef struct shared_info
 	t_dongle		*dongles;
 	t_config		*config;
 	t_coder_state	*coders_states;
-	pthread_cond_t	can_start_cond;
-	int				can_start;
+	pthread_cond_t	pairs_ready_cond;
+	int				pairs_ready;
 }					t_shared_info;
 
 #endif

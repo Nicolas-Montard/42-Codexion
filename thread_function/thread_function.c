@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:17 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 15:43:17 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 03:52:55 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,28 +17,18 @@
 static void	wait_for_start(t_thread_info *thread_info)
 {
 	struct timespec	start_timer;
+	int				nb_pairs;
 
-	start_timer = 
-	make_timespec(thread_info->shared_info->config->dongle_cooldown);
+	nb_pairs = (thread_info->shared_info->config->nb_coder + 1) / 2;
+	start_timer = make_timespec(thread_info->shared_info->config->time_to_burnout);
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	while (thread_info->shared_info->can_start == 0)
+	while (thread_info->shared_info->pairs_ready < nb_pairs
+		&& thread_info->shared_info->simulation_ended == 0)
 	{
-		pthread_cond_timedwait(&thread_info->shared_info->can_start_cond,
+		pthread_cond_timedwait(&thread_info->shared_info->pairs_ready_cond,
 			&thread_info->shared_info->simulation_lock, &start_timer);
 	}
 	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-}
-
-static void	init_thread(t_thread_info *thread_info, t_coder_state *coder)
-{
-	if (coder->id % 2 == 1)
-		wait_for_start(thread_info);
-	pthread_mutex_lock(&thread_info->lock);
-	thread_info->has_started = 1;
-	pthread_mutex_unlock(&thread_info->lock);
-	pthread_mutex_lock(&coder->lock_compile_start);
-	gettimeofday(&coder->last_compile_start, NULL);
-	pthread_mutex_unlock(&coder->lock_compile_start);
 }
 
 static void	run_loop(t_thread_info *th_info, t_coder_state *coder)
@@ -71,7 +61,18 @@ void	*thread_function(void *thread_info_void)
 
 	thread_info = (t_thread_info *)thread_info_void;
 	coder = get_coder(thread_info);
-	init_thread(thread_info, coder);
+	if (coder->id % 2 == 1)
+		wait_for_start(thread_info);
+	else
+	{
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+		thread_info->shared_info->pairs_ready += 1;
+		pthread_cond_broadcast(&thread_info->shared_info->pairs_ready_cond);
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+	}
+	pthread_mutex_lock(&coder->lock_compile_start);
+	gettimeofday(&coder->last_compile_start, NULL);
+	pthread_mutex_unlock(&coder->lock_compile_start);
 	run_loop(thread_info, coder);
 	return (NULL);
 }

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:46:28 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 15:03:21 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 03:20:40 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ void	free_shared_info(t_shared_info *shared, int nb_coder)
 {
 	pthread_mutex_destroy(&shared->print_lock);
 	pthread_mutex_destroy(&shared->simulation_lock);
-	pthread_cond_destroy(&shared->can_start_cond);
+	pthread_cond_destroy(&shared->pairs_ready_cond);
 	if (shared->dongles != NULL)
 		free_dongles(shared->dongles, nb_coder);
 	if (shared->coders_states != NULL)

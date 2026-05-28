@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/22 23:19:33 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 15:11:13 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 03:20:23 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,13 +34,14 @@ static int	init_shared_mutexes(t_shared_info *shared_info, int *error)
 		*error = 6;
 		return (6);
 	}
-	if (pthread_cond_init(&shared_info->can_start_cond, NULL) != 0)
+	if (pthread_cond_init(&shared_info->pairs_ready_cond, NULL) != 0)
 	{
 		pthread_mutex_destroy(&shared_info->print_lock);
 		pthread_mutex_destroy(&shared_info->simulation_lock);
 		*error = 7;
 		return (7);
 	}
+	shared_info->pairs_ready = 0;
 	return (0);
 }
 
@@ -50,7 +51,6 @@ static int	init_shared_info(t_shared_info *shared_info, t_config *config,
 	if (init_shared_mutexes(shared_info, error) != 0)
 		return (*error);
 	shared_info->simulation_ended = 0;
-	shared_info->can_start = 0;
 	shared_info->config = config;
 	shared_info->coders_states = create_coders(config->nb_coder, error);
 	if (shared_info->coders_states == NULL)

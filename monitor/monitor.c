@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 13:42:36 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 03:24:33 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,35 +15,6 @@
 #include <pthread.h>
 #include <unistd.h>
 #include "monitor.h"
-
-static void	check_started(t_thread_info *thread_info, int nb_coder)
-{
-	int	i;
-
-	i = 0;
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	if (thread_info->shared_info->can_start == 1)
-	{
-		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-		return ;
-	}
-	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-	while (i < nb_coder)
-	{
-		pthread_mutex_lock(&thread_info[i].lock);
-		if (thread_info[i].id % 2 == 0 && thread_info[i].has_started == 0)
-		{
-			pthread_mutex_unlock(&thread_info[i].lock);
-			return ;
-		}
-		pthread_mutex_unlock(&thread_info[i].lock);
-		i++;
-	}
-	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
-	thread_info->shared_info->can_start = 1;
-	pthread_cond_broadcast(&thread_info->shared_info->can_start_cond);
-	pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-}
 
 static int	check_all_ended(t_thread_info *thread_info, int nb_coder)
 {
@@ -73,7 +44,6 @@ static void	*monitor(void *thread_info_void)
 	nb_coder = thread_info->shared_info->config->nb_coder;
 	while (thread_info->shared_info->simulation_ended != 1)
 	{
-		check_started(thread_info, nb_coder);
 		if (check_burnout(thread_info, nb_coder))
 			break ;
 		check_dongle_cooldown(thread_info->shared_info->dongles,
