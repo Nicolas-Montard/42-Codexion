@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:46:55 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 13:50:18 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 06:51:12 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,4 +29,6 @@ struct timespec	make_timespec(int timeout_ms);
 void			compile(t_thread_info *thread_info);
 void			debug(t_thread_info *thread_info);
 void			refactoring(t_thread_info *thread_info);
+void			queue_start(t_coder_state *coder,
+					t_dongle *dongle, char *scheduler);
 #endif

@@ -6,17 +6,21 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/27 13:50:20 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/28 03:53:11 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 05:51:12 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "thread_function.h"
 #include "thread_info.h"
 #include <unistd.h>
+#include <stdio.h>
 
 static void	do_compile(t_thread_info *thread_info, t_dongle *dongles[2],
 		t_coder_state *coder)
 {
+	struct timeval now;
+
+	gettimeofday(&now, NULL);
 	thread_print("has taken a dongle", thread_info);
 	thread_print("has taken a dongle", thread_info);
 	change_compile_start(thread_info);
@@ -39,7 +43,9 @@ void	compile(t_thread_info *thread_info)
 		usleep((thread_info->shared_info->config->time_to_burnout + 20) * 1000);
 	if (thread_info->shared_info->simulation_ended == 1)
 		return ;
+	//printf("TEST THF 2, ID: %d\n", thread_info->id + 1);
 	take_dongles(thread_info, dongles);
+	//printf("TEST THF 3, ID: %d\n", thread_info->id + 1);
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	if (thread_info->shared_info->simulation_ended == 1)
 	{

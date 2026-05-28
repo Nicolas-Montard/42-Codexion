@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:46:52 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/28 03:19:37 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 06:13:52 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ typedef struct shared_info
 	t_coder_state	*coders_states;
 	pthread_cond_t	pairs_ready_cond;
 	int				pairs_ready;
+	int				impairs_ready;
+	int				can_start;
 }					t_shared_info;
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:12 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/27 15:56:54 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 07:02:26 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,20 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
+void	queue_start(t_coder_state *coder, t_dongle *dongle, char *scheduler)
+{
+	if (strcmp("fifo", scheduler) == 0)
+		dongle->queue[dongle->queue_size] = coder;
+	else
+	{
+		if (coder->id % 2 == 0)
+			dongle->queue[0] = coder;
+		else
+			dongle->queue[1] = coder;
+	}
+	dongle->queue_size += 1;
+}
 
 static void	add_to_queue(t_coder_state *coder, t_dongle *dongle,
 		char *scheduler)
@@ -69,15 +83,12 @@ static void	wait_for_dongles(t_thread_info *thread_info, t_dongle *dongles[2],
 {
 	struct timespec	end_timer;
 
-	add_to_queue(coder, dongles[0],
-		thread_info->shared_info->config->scheduler);
-	add_to_queue(coder, dongles[1],
-		thread_info->shared_info->config->scheduler);
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	while (((dongles[0]->queue[0] != coder || dongles[1]->queue[0] != coder)
 			|| (dongles[0]->available == 0 || dongles[1]->available == 0))
 		&& thread_info->shared_info->simulation_ended == 0)
 	{
+		//printf("DONGLES 2, ID: %d\n", thread_info->id + 1);
 		end_timer = make_timespec(
 				thread_info->shared_info->config->time_to_burnout + 10);
 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
@@ -87,6 +98,7 @@ static void	wait_for_dongles(t_thread_info *thread_info, t_dongle *dongles[2],
 		pthread_mutex_lock(&(dongles[1]->lock));
 		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	}
+	//printf("DONGLES 3, ID: %d\n", thread_info->id + 1);
 }
 
 void	take_dongles(t_thread_info *thread_info, t_dongle *dongles[2])
@@ -96,6 +108,7 @@ void	take_dongles(t_thread_info *thread_info, t_dongle *dongles[2])
 	coder = get_coder(thread_info);
 	pthread_mutex_lock(&(dongles[0]->lock));
 	pthread_mutex_lock(&(dongles[1]->lock));
+	//printf("DONGLES 1, ID: %d\n", thread_info->id + 1);
 	wait_for_dongles(thread_info, dongles, coder);
 	if (thread_info->shared_info->simulation_ended == 1)
 	{
@@ -111,4 +124,8 @@ void	take_dongles(t_thread_info *thread_info, t_dongle *dongles[2])
 	pop_queue(dongles[1]);
 	pthread_mutex_unlock(&(dongles[0]->lock));
 	pthread_mutex_unlock(&(dongles[1]->lock));
+	add_to_queue(
+		coder, dongles[0], thread_info->shared_info->config->scheduler);
+	add_to_queue(
+		coder, dongles[1], thread_info->shared_info->config->scheduler);
 }

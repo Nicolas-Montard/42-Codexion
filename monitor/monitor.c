@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/28 03:24:33 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/28 06:34:25 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,30 @@
 #include <pthread.h>
 #include <unistd.h>
 #include "monitor.h"
+
+static void	check_can_start(t_thread_info *thread_info)
+{
+	struct timeval now;
+
+	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	while (thread_info->shared_info->can_start != 1)
+	{
+		if ((thread_info->shared_info->pairs_ready
+			+ thread_info->shared_info->impairs_ready)
+			== thread_info->shared_info->config->nb_coder)
+		{
+			thread_info->shared_info->can_start = 1;
+			gettimeofday(&now, NULL);
+			thread_info->shared_info->config->started_at = now;
+			pthread_cond_broadcast(&thread_info->shared_info->pairs_ready_cond);
+			pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+			break;
+		}
+		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
+		usleep(100);
+		pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
+	}
+}
 
 static int	check_all_ended(t_thread_info *thread_info, int nb_coder)
 {
@@ -42,6 +66,7 @@ static void	*monitor(void *thread_info_void)
 
 	thread_info = (t_thread_info *)thread_info_void;
 	nb_coder = thread_info->shared_info->config->nb_coder;
+	check_can_start(thread_info);
 	while (thread_info->shared_info->simulation_ended != 1)
 	{
 		if (check_burnout(thread_info, nb_coder))
