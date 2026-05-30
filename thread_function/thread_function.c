@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:17 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/28 06:53:46 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/30 17:38:10 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,7 +55,7 @@ static void	run_loop(t_thread_info *th_info, t_coder_state *coder)
 	}
 	pthread_mutex_unlock(&th_info->shared_info->simulation_lock);
 }
-
+//TODO add securisation if all thread not created correctly
 void	*thread_function(void *thread_info_void)
 {
 	t_thread_info	*thread_info;

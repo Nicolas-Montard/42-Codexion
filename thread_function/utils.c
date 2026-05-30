@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:21 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/26 15:39:15 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/30 15:16:23 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,13 +36,11 @@ void	thread_print(char *str, t_thread_info *thread_info)
 
 void	change_compile_start(t_thread_info *thread_info)
 {
-	struct timeval	now;
 	t_coder_state	*coder;
 
 	coder = get_coder(thread_info);
-	gettimeofday(&now, NULL);
 	pthread_mutex_lock(&coder->lock_compile_start);
-	coder->last_compile_start = now;
+	gettimeofday(&coder->last_compile_start, NULL);
 	pthread_mutex_unlock(&coder->lock_compile_start);
 }
 
