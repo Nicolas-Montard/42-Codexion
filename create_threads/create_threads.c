@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/04/23 01:38:56 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/30 17:26:08 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/31 04:11:36 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <pthread.h>
 #include <stdio.h>
 
-//TODO add securisation if all thread not created correctly
 static void	cancel_threads(pthread_t *threads, t_shared_info *shared_info,
 		int i)
 {

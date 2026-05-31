@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/31 02:25:34 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/31 02:25:36 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/31 07:06:33 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,9 @@ void	queue_start(t_coder_state *coder, t_dongle *dongle, char *scheduler)
 void	add_to_queue(t_coder_state *coder, t_dongle *dongle,
 		char *scheduler)
 {
+	long	queue0_ms;
+	long	coder_ms;
+
 	if (strcmp("fifo", scheduler) == 0)
 		dongle->queue[dongle->queue_size] = coder;
 	else
@@ -45,8 +48,13 @@ void	add_to_queue(t_coder_state *coder, t_dongle *dongle,
 			dongle->queue[0] = coder;
 		else
 		{
-			if (timeval_to_ms(dongle->queue[0]->last_compile_start)
-				> timeval_to_ms(coder->last_compile_start))
+			pthread_mutex_lock(&dongle->queue[0]->lock_compile_start);
+			queue0_ms = timeval_to_ms(dongle->queue[0]->last_compile_start);
+			pthread_mutex_unlock(&dongle->queue[0]->lock_compile_start);
+			pthread_mutex_lock(&coder->lock_compile_start);
+			coder_ms = timeval_to_ms(coder->last_compile_start);
+			pthread_mutex_unlock(&coder->lock_compile_start);
+			if (queue0_ms > coder_ms)
 			{
 				dongle->queue[1] = dongle->queue[0];
 				dongle->queue[0] = coder;
