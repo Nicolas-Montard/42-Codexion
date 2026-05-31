@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:46:55 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/30 15:59:58 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/31 02:20:57 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,4 +31,7 @@ void			debug(t_thread_info *thread_info);
 void			refactoring(t_thread_info *thread_info);
 void			queue_start(t_coder_state *coder,
 					t_dongle *dongle, char *scheduler);
+void			add_to_queue(t_coder_state *coder, t_dongle *dongle,
+				char *scheduler);
+void			pop_queue(t_dongle *dongle);
 #endif

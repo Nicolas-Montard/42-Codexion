@@ -6,7 +6,7 @@
 #    By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/11/05 15:10:14 by nmontard          #+#    #+#              #
-#    Updated: 2026/05/27 13:51:52 by nmontard         ###   ########.fr        #
+#    Updated: 2026/05/31 02:22:53 by nmontard         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,9 @@ CFILES  = create_threads/create_threads.c create_threads/create_threads_struct.c
           utils/utils.c main.c clean/clean.c thread_function/thread_function.c \
 		  thread_function/utils.c monitor/monitor.c thread_function/dongle_utils.c \
 		  create_threads/create_threads_struct_utils.c monitor/monitor_utils.c \
-		  thread_function/utils2.c thread_function/thread_function2.c
+		  thread_function/utils2.c thread_function/thread_function2.c \
+		  thread_function/queue.c
+		  
 
 OBJECTS = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.o))
 DEPS    = $(addprefix $(DIR_TO_CREATE)/, $(CFILES:.c=.d))

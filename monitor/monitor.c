@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/07 05:31:39 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/28 06:34:25 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/31 02:25:54 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,21 +18,17 @@
 
 static void	check_can_start(t_thread_info *thread_info)
 {
-	struct timeval now;
-
 	pthread_mutex_lock(&thread_info->shared_info->simulation_lock);
 	while (thread_info->shared_info->can_start != 1)
 	{
-		if ((thread_info->shared_info->pairs_ready
-			+ thread_info->shared_info->impairs_ready)
+		if (thread_info->shared_info->thread_ready
 			== thread_info->shared_info->config->nb_coder)
 		{
 			thread_info->shared_info->can_start = 1;
-			gettimeofday(&now, NULL);
-			thread_info->shared_info->config->started_at = now;
-			pthread_cond_broadcast(&thread_info->shared_info->pairs_ready_cond);
+			gettimeofday(&thread_info->shared_info->config->started_at, NULL);
+			pthread_cond_broadcast(&thread_info->shared_info->can_start_cond);
 			pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
-			break;
+			break ;
 		}
 		pthread_mutex_unlock(&thread_info->shared_info->simulation_lock);
 		usleep(100);

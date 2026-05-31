@@ -6,7 +6,7 @@
 /*   By: nmontard <nmontard@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/05/26 14:47:12 by nmontard          #+#    #+#             */
-/*   Updated: 2026/05/30 17:08:39 by nmontard         ###   ########.fr       */
+/*   Updated: 2026/05/31 02:23:10 by nmontard         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,63 +15,7 @@
 #include "thread_info.h"
 #include <pthread.h>
 #include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-
-void	queue_start(t_coder_state *coder, t_dongle *dongle, char *scheduler)
-{
-	if (strcmp("fifo", scheduler) == 0)
-		dongle->queue[dongle->queue_size] = coder;
-	else
-	{
-		if (coder->id % 2 == 0)
-		{
-			if (dongle->queue[0] != NULL && dongle->queue[0]->id % 2 == 0)
-				dongle->queue[1] = coder;
-			else
-				dongle->queue[0] = coder;
-		}
-		else
-			dongle->queue[1] = coder;
-	}
-	dongle->queue_size += 1;
-}
-
-static void	add_to_queue(t_coder_state *coder, t_dongle *dongle,
-		char *scheduler)
-{
-	if (strcmp("fifo", scheduler) == 0)
-		dongle->queue[dongle->queue_size] = coder;
-	else
-	{
-		if (dongle->queue_size == 0)
-			dongle->queue[0] = coder;
-		else
-		{
-			if (timeval_to_ms(dongle->queue[0]->last_compile_start)
-				> timeval_to_ms(coder->last_compile_start))
-			{
-				dongle->queue[1] = dongle->queue[0];
-				dongle->queue[0] = coder;
-			}
-			else
-				dongle->queue[1] = coder;
-		}
-	}
-	dongle->queue_size += 1;
-}
-
-static void	pop_queue(t_dongle *dongle)
-{
-	if (dongle->queue_size == 1)
-		dongle->queue[0] = NULL;
-	else
-	{
-		dongle->queue[0] = dongle->queue[1];
-		dongle->queue[1] = NULL;
-	}
-	dongle->queue_size -= 1;
-}
 
 void	release_dongle(t_dongle *dongle)
 {
